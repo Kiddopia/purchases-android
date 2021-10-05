@@ -974,12 +974,16 @@ class Purchases @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) intern
             return
         }
         if (shouldTryToConsume && purchase.isConsumable) {
-            billingWrapper.consumePurchase(purchase.purchaseToken) { billingResult, purchaseToken ->
-                if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                    deviceCache.addSuccessfullyPostedToken(purchaseToken)
-                } else {
-                    debugLog("Error consuming purchase. Will retry next queryPurchases. " +
-                        "${billingResult.toHumanReadableDescription()}")
+            // TODO: Kiddopia update
+            // Putting hardcoded check to avoid consume on PlayPass purchase
+            if(purchase.sku != "kiddopia.playpass") {
+                billingWrapper.consumePurchase(purchase.purchaseToken) { billingResult, purchaseToken ->
+                    if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
+                        deviceCache.addSuccessfullyPostedToken(purchaseToken)
+                    } else {
+                        debugLog("Error consuming purchase. Will retry next queryPurchases. " +
+                                "${billingResult.toHumanReadableDescription()}")
+                    }
                 }
             }
         } else if (shouldTryToConsume) {
