@@ -296,14 +296,18 @@ class BillingWrapper(
         val originalGooglePurchase = purchase.originalGooglePurchase
         val alreadyAcknowledged = originalGooglePurchase?.isAcknowledged ?: false
         if (shouldTryToConsume && purchase.type == ProductType.INAPP) {
-            consumePurchase(purchase.purchaseToken) { billingResult, purchaseToken ->
-                if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                    deviceCache.addSuccessfullyPostedToken(purchaseToken)
-                } else {
-                    log(
-                        LogIntent.GOOGLE_ERROR, PurchaseStrings.CONSUMING_PURCHASE_ERROR
-                            .format(billingResult.toHumanReadableDescription())
-                    )
+            // NOTE: Kiddopia play pass update
+            // Hardcoded check stop consume of play pass product
+            if(!purchase.skus.contains("kiddopia.playpass")) {
+                consumePurchase(purchase.purchaseToken) { billingResult, purchaseToken ->
+                    if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
+                        deviceCache.addSuccessfullyPostedToken(purchaseToken)
+                    } else {
+                        log(
+                            LogIntent.GOOGLE_ERROR, PurchaseStrings.CONSUMING_PURCHASE_ERROR
+                                .format(billingResult.toHumanReadableDescription())
+                        )
+                    }
                 }
             }
         } else if (shouldTryToConsume && !alreadyAcknowledged) {
